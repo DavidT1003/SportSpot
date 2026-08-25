@@ -57,9 +57,3 @@ Frontend se pokreće na `http://localhost:5173`.
 Zahtjevi prema `/api` se automatski proxiraju na backend (port 5000).
 
 Otvori `http://localhost:5173` u pregledniku, registriraj se i kreni.
-
-## Napomena o bazi
-
-`server/.env` koristi direktan (non-SRV) MongoDB konekcijski string jer neke mreže
-ne podržavaju SRV DNS lookup. Ako standardni `mongodb+srv://` oblik radi na tvojoj
-mreži, u `.env` je pripremljena i ta alternativa (samo je odkomentiraj).
