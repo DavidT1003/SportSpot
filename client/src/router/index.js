@@ -1,10 +1,13 @@
 import { createRouter, createWebHistory } from "vue-router";
 import Auth from "../views/Auth.vue";
 import Home from "../views/Home.vue";
+import Profile from "../views/Profile.vue";
 
 const routes = [
   { path: "/", name: "Auth", component: Auth, meta: { guestOnly: true } },
   { path: "/home", name: "Home", component: Home, meta: { requiresAuth: true } },
+  // Bez meta oznake - profil je javan i moze ga posjetiti bilo tko
+  { path: "/profil/:id", name: "Profil", component: Profile },
 ];
 
 const router = createRouter({

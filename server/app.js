@@ -4,6 +4,7 @@ import cors from "cors";
 import connectDB from "./db.js";
 import authRoutes from "./routes/auth.js";
 import postRoutes from "./routes/posts.js";
+import userRoutes from "./routes/users.js";
 
 const app = express();
 
@@ -24,6 +25,7 @@ app.use(async (req, res, next) => {
 
 app.use("/api/auth", authRoutes);
 app.use("/api/posts", postRoutes);
+app.use("/api/users", userRoutes);
 
 const status = (req, res) => res.json({ status: "SportSpot API radi" });
 app.get("/", status);

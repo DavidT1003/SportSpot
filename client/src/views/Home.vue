@@ -6,6 +6,13 @@
         <span class="navbar-brand fw-bold">SportSpot</span>
         <div class="d-flex align-items-center text-white">
           <span class="me-3 d-none d-sm-inline">Bok, {{ user.ime }}!</span>
+          <router-link
+            v-if="user.id"
+            :to="`/profil/${user.id}`"
+            class="btn btn-outline-light btn-sm me-2"
+          >
+            Moj profil
+          </router-link>
           <button class="btn btn-outline-light btn-sm" @click="logout">Odjava</button>
         </div>
       </div>
@@ -65,7 +72,15 @@
                 📍 {{ post.grad }}, {{ post.adresa }} &nbsp;•&nbsp; 📅 {{ post.datum }}
               </p>
               <p class="mb-1 small text-secondary">
-                Objavio: {{ post.user?.ime }} {{ post.user?.prezime }}
+                Objavio:
+                <router-link
+                  v-if="post.user?._id"
+                  :to="`/profil/${post.user._id}`"
+                  class="text-decoration-none"
+                >
+                  {{ post.user.ime }} {{ post.user.prezime }}
+                </router-link>
+                <span v-else>nepoznat korisnik</span>
               </p>
             </div>
           </div>
