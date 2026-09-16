@@ -125,15 +125,25 @@
 
           <!-- Akcije -->
           <div class="mt-3 d-flex gap-2">
-            <button
-              v-if="!isOwner(post) && editingId !== post._id"
-              class="btn btn-sm"
-              :class="jePopunjen(post) ? 'btn-outline-secondary' : 'btn-outline-primary'"
-              :disabled="jePopunjen(post)"
-              @click="joinPost(post)"
-            >
-              {{ jePopunjen(post) ? "Popunjeno" : "+ Pridruži se" }}
-            </button>
+            <template v-if="!isOwner(post) && editingId !== post._id">
+              <!-- Odjava ima prednost: prijavljeni se mora moci odjaviti i kad je popunjeno -->
+              <button
+                v-if="jePrijavljen(post)"
+                class="btn btn-sm btn-outline-danger"
+                @click="leavePost(post)"
+              >
+                − Odjavi se
+              </button>
+              <button
+                v-else
+                class="btn btn-sm"
+                :class="jePopunjen(post) ? 'btn-outline-secondary' : 'btn-outline-primary'"
+                :disabled="jePopunjen(post)"
+                @click="joinPost(post)"
+              >
+                {{ jePopunjen(post) ? "Popunjeno" : "+ Pridruži se" }}
+              </button>
+            </template>
 
             <template v-if="isOwner(post) && editingId !== post._id">
               <button class="btn btn-sm btn-outline-secondary" @click="startEdit(post)">
@@ -169,6 +179,11 @@ const editText = ref("");
 
 function isOwner(post) {
   return post.user?._id === user.id;
+}
+
+// dolazci nije populiran, pa su to obicni ID-evi
+function jePrijavljen(post) {
+  return !!post.dolazci?.some((id) => String(id) === user.id);
 }
 
 // Stari oglasi nemaju kapacitet - za njih kvota ne vrijedi
@@ -207,6 +222,15 @@ async function createPost() {
 async function joinPost(post) {
   try {
     await api.post(`/posts/${post._id}/join`);
+    await loadPosts();
+  } catch (err) {
+    alert(err.response?.data?.message || "Greška.");
+  }
+}
+
+async function leavePost(post) {
+  try {
+    await api.post(`/posts/${post._id}/leave`);
     await loadPosts();
   } catch (err) {
     alert(err.response?.data?.message || "Greška.");

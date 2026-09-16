@@ -98,6 +98,26 @@ router.post("/:id/join", auth, async (req, res) => {
   }
 });
 
+// Odjava s termina
+router.post("/:id/leave", auth, async (req, res) => {
+  try {
+    const post = await Post.findById(req.params.id);
+    if (!post) return res.status(404).json({ message: "Oglas ne postoji." });
+
+    if (!post.dolazci.some((id) => id.toString() === req.userId)) {
+      return res.status(400).json({ message: "Niste prijavljeni na ovaj oglas." });
+    }
+
+    post.dolazci = post.dolazci.filter((id) => id.toString() !== req.userId);
+    await post.save();
+
+    const populated = await post.populate("user", "ime prezime");
+    res.json(populated);
+  } catch {
+    res.status(500).json({ message: "Greška na serveru." });
+  }
+});
+
 // Obriši oglas (samo vlasnik)
 router.delete("/:id", auth, async (req, res) => {
   try {
