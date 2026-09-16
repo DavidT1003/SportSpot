@@ -49,7 +49,16 @@
           <div class="card-body">
             <h5 class="mb-1">
               {{ post.sport }}
-              <span class="badge bg-success ms-1">{{ post.dolazci.length }} dolazaka</span>
+              <span
+                v-if="post.kapacitet"
+                class="badge ms-1"
+                :class="post.dolazci.length >= post.kapacitet ? 'bg-secondary' : 'bg-success'"
+              >
+                {{ post.dolazci.length }}/{{ post.kapacitet }} prijavljeno
+              </span>
+              <span v-else class="badge bg-success ms-1">
+                {{ post.dolazci.length }} dolazaka
+              </span>
             </h5>
             <p class="mb-1 text-muted">
               📍 {{ post.grad }}, {{ post.adresa }} &nbsp;•&nbsp; 📅 {{ post.datum }}

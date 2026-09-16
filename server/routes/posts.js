@@ -19,11 +19,18 @@ router.get("/", async (req, res) => {
 // Kreiraj oglas
 router.post("/", auth, async (req, res) => {
   try {
-    const { sport, grad, adresa, opis, datum, vrijeme } = req.body;
+    const { sport, grad, adresa, opis, datum, vrijeme, kapacitet } = req.body;
     if (!sport || !grad || !adresa || !datum || !vrijeme) {
       return res
         .status(400)
         .json({ message: "Sport, grad, adresa, datum i vrijeme su obavezni." });
+    }
+
+    const kvota = Number(kapacitet);
+    if (!Number.isInteger(kvota) || kvota < 1 || kvota > 100) {
+      return res
+        .status(400)
+        .json({ message: "Broj traženih igrača mora biti cijeli broj između 1 i 100." });
     }
 
     const post = await Post.create({
@@ -33,6 +40,7 @@ router.post("/", auth, async (req, res) => {
       opis: opis || "",
       datum,
       vrijeme,
+      kapacitet: kvota,
       user: req.userId,
       dolazci: [],
     });
@@ -74,6 +82,10 @@ router.post("/:id/join", auth, async (req, res) => {
     }
     if (post.dolazci.some((id) => id.toString() === req.userId)) {
       return res.status(400).json({ message: "Već ste prijavljeni na ovaj oglas." });
+    }
+    // Kvota se mora provjeriti ovdje - zakljucan gumb na klijentu je samo kozmetika
+    if (post.kapacitet && post.dolazci.length >= post.kapacitet) {
+      return res.status(400).json({ message: "Oglas je popunjen." });
     }
 
     post.dolazci.push(req.userId);

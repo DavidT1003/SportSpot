@@ -37,6 +37,16 @@
               <div class="col-md-6">
                 <input v-model="newPost.adresa" class="form-control" placeholder="Adresa / lokacija" />
               </div>
+              <div class="col-md-6">
+                <input
+                  v-model.number="newPost.kapacitet"
+                  type="number"
+                  min="1"
+                  max="100"
+                  class="form-control"
+                  placeholder="Koliko igrača tražiš? (npr. 4)"
+                />
+              </div>
               <div class="col-md-3">
                 <input v-model="newPost.datum" type="date" class="form-control" />
               </div>
@@ -69,7 +79,16 @@
             <div>
               <h5 class="mb-1">
                 {{ post.sport }}
-                <span class="badge bg-success ms-1">{{ post.dolazci.length }} dolazaka</span>
+                <span
+                  v-if="post.kapacitet"
+                  class="badge ms-1"
+                  :class="jePopunjen(post) ? 'bg-secondary' : 'bg-success'"
+                >
+                  {{ post.dolazci.length }}/{{ post.kapacitet }} prijavljeno
+                </span>
+                <span v-else class="badge bg-success ms-1">
+                  {{ post.dolazci.length }} dolazaka
+                </span>
               </h5>
               <p class="mb-1 text-muted">
                 📍 {{ post.grad }}, {{ post.adresa }} &nbsp;•&nbsp; 📅 {{ post.datum }}
@@ -86,6 +105,13 @@
                 </router-link>
                 <span v-else>nepoznat korisnik</span>
               </p>
+              <p v-if="post.kapacitet" class="mb-0 small">
+                <span class="text-secondary">Ukupno igrača: {{ post.kapacitet }}</span>
+                <span v-if="preostalo(post) > 0" class="text-primary ms-2 fw-semibold">
+                  Tražimo još: {{ preostalo(post) }} igrača
+                </span>
+                <span v-else class="text-danger ms-2 fw-semibold">Popunjeno</span>
+              </p>
             </div>
           </div>
 
@@ -101,10 +127,12 @@
           <div class="mt-3 d-flex gap-2">
             <button
               v-if="!isOwner(post) && editingId !== post._id"
-              class="btn btn-sm btn-outline-primary"
+              class="btn btn-sm"
+              :class="jePopunjen(post) ? 'btn-outline-secondary' : 'btn-outline-primary'"
+              :disabled="jePopunjen(post)"
               @click="joinPost(post)"
             >
-              + Pridruži se
+              {{ jePopunjen(post) ? "Popunjeno" : "+ Pridruži se" }}
             </button>
 
             <template v-if="isOwner(post) && editingId !== post._id">
@@ -134,13 +162,23 @@ const posts = ref([]);
 const loading = ref(true);
 const formError = ref("");
 
-const newPost = reactive({ sport: "", grad: "", adresa: "", datum: "", vrijeme: "", opis: "" });
+const newPost = reactive({ sport: "", grad: "", adresa: "", kapacitet: "", datum: "", vrijeme: "", opis: "" });
 
 const editingId = ref(null);
 const editText = ref("");
 
 function isOwner(post) {
   return post.user?._id === user.id;
+}
+
+// Stari oglasi nemaju kapacitet - za njih kvota ne vrijedi
+function jePopunjen(post) {
+  return !!post.kapacitet && post.dolazci.length >= post.kapacitet;
+}
+
+function preostalo(post) {
+  if (!post.kapacitet) return 0;
+  return Math.max(0, post.kapacitet - post.dolazci.length);
 }
 
 async function loadPosts() {
@@ -159,7 +197,7 @@ async function createPost() {
   formError.value = "";
   try {
     await api.post("/posts", { ...newPost });
-    Object.assign(newPost, { sport: "", grad: "", adresa: "", datum: "", vrijeme: "", opis: "" });
+    Object.assign(newPost, { sport: "", grad: "", adresa: "", kapacitet: "", datum: "", vrijeme: "", opis: "" });
     await loadPosts();
   } catch (err) {
     formError.value = err.response?.data?.message || "Greška pri objavi.";
