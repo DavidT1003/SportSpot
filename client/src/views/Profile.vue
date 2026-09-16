@@ -53,6 +53,7 @@
             </h5>
             <p class="mb-1 text-muted">
               📍 {{ post.grad }}, {{ post.adresa }} &nbsp;•&nbsp; 📅 {{ post.datum }}
+              <template v-if="post.vrijeme">&nbsp;•&nbsp; 🕒 {{ post.vrijeme }}</template>
             </p>
             <p v-if="post.opis" class="mt-2 mb-0">{{ post.opis }}</p>
           </div>

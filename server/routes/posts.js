@@ -19,9 +19,11 @@ router.get("/", async (req, res) => {
 // Kreiraj oglas
 router.post("/", auth, async (req, res) => {
   try {
-    const { sport, grad, adresa, opis, datum } = req.body;
-    if (!sport || !grad || !adresa || !datum) {
-      return res.status(400).json({ message: "Sport, grad, adresa i datum su obavezni." });
+    const { sport, grad, adresa, opis, datum, vrijeme } = req.body;
+    if (!sport || !grad || !adresa || !datum || !vrijeme) {
+      return res
+        .status(400)
+        .json({ message: "Sport, grad, adresa, datum i vrijeme su obavezni." });
     }
 
     const post = await Post.create({
@@ -30,6 +32,7 @@ router.post("/", auth, async (req, res) => {
       adresa,
       opis: opis || "",
       datum,
+      vrijeme,
       user: req.userId,
       dolazci: [],
     });

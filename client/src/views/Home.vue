@@ -37,8 +37,11 @@
               <div class="col-md-6">
                 <input v-model="newPost.adresa" class="form-control" placeholder="Adresa / lokacija" />
               </div>
-              <div class="col-md-6">
+              <div class="col-md-3">
                 <input v-model="newPost.datum" type="date" class="form-control" />
+              </div>
+              <div class="col-md-3">
+                <input v-model="newPost.vrijeme" type="time" class="form-control" />
               </div>
               <div class="col-12">
                 <textarea
@@ -70,6 +73,7 @@
               </h5>
               <p class="mb-1 text-muted">
                 📍 {{ post.grad }}, {{ post.adresa }} &nbsp;•&nbsp; 📅 {{ post.datum }}
+                <template v-if="post.vrijeme">&nbsp;•&nbsp; 🕒 {{ post.vrijeme }}</template>
               </p>
               <p class="mb-1 small text-secondary">
                 Objavio:
@@ -130,7 +134,7 @@ const posts = ref([]);
 const loading = ref(true);
 const formError = ref("");
 
-const newPost = reactive({ sport: "", grad: "", adresa: "", datum: "", opis: "" });
+const newPost = reactive({ sport: "", grad: "", adresa: "", datum: "", vrijeme: "", opis: "" });
 
 const editingId = ref(null);
 const editText = ref("");
@@ -155,7 +159,7 @@ async function createPost() {
   formError.value = "";
   try {
     await api.post("/posts", { ...newPost });
-    Object.assign(newPost, { sport: "", grad: "", adresa: "", datum: "", opis: "" });
+    Object.assign(newPost, { sport: "", grad: "", adresa: "", datum: "", vrijeme: "", opis: "" });
     await loadPosts();
   } catch (err) {
     formError.value = err.response?.data?.message || "Greška pri objavi.";
